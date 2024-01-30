@@ -1,0 +1,15 @@
+{
+    "projectName": "demo",
+    "services": {
+        "0": {
+            "label": "springService",
+            "applicationName": "springService",
+            "applicationFramework": "java",
+            "packageName": "com.cmi.tic",
+            "serverPort": "9000",
+            "applicationType": "microservice",
+            "authenticationType": "oauth2"
+        }
+    },
+    "projectId": "demo-J5xfjl_am"
+}

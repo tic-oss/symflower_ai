@@ -1,0 +1,229 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CacheConfiguration</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.config</a>
+</div>
+
+<h1>Coverage Summary for Class: CacheConfiguration (com.cmi.tic.config)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CacheConfiguration</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/35)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.config;
+&nbsp;
+&nbsp;import com.hazelcast.config.*;
+&nbsp;import com.hazelcast.core.Hazelcast;
+&nbsp;import com.hazelcast.core.HazelcastInstance;
+&nbsp;import jakarta.annotation.PreDestroy;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.boot.info.BuildProperties;
+&nbsp;import org.springframework.boot.info.GitProperties;
+&nbsp;import org.springframework.cache.CacheManager;
+&nbsp;import org.springframework.cache.annotation.EnableCaching;
+&nbsp;import org.springframework.cache.interceptor.KeyGenerator;
+&nbsp;import org.springframework.context.annotation.*;
+&nbsp;import org.springframework.core.env.Environment;
+&nbsp;import org.springframework.core.env.Profiles;
+&nbsp;import tech.jhipster.config.JHipsterConstants;
+&nbsp;import tech.jhipster.config.JHipsterProperties;
+&nbsp;import tech.jhipster.config.cache.PrefixedKeyGenerator;
+&nbsp;
+&nbsp;@Configuration
+&nbsp;@EnableCaching
+&nbsp;public class CacheConfiguration {
+&nbsp;
+&nbsp;    private GitProperties gitProperties;
+&nbsp;    private BuildProperties buildProperties;
+&nbsp;
+<b class="nc">&nbsp;    private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);</b>
+&nbsp;
+&nbsp;    private final Environment env;
+&nbsp;
+<b class="nc">&nbsp;    public CacheConfiguration(Environment env) {</b>
+<b class="nc">&nbsp;        this.env = env;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreDestroy
+&nbsp;    public void destroy() {
+<b class="nc">&nbsp;        log.info(&quot;Closing Cache Manager&quot;);</b>
+<b class="nc">&nbsp;        Hazelcast.shutdownAll();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Bean
+&nbsp;    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+<b class="nc">&nbsp;        log.debug(&quot;Starting HazelcastCacheManager&quot;);</b>
+<b class="nc">&nbsp;        return new com.hazelcast.spring.cache.HazelcastCacheManager(hazelcastInstance);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Bean
+&nbsp;    public HazelcastInstance hazelcastInstance(JHipsterProperties jHipsterProperties) {
+<b class="nc">&nbsp;        log.debug(&quot;Configuring Hazelcast&quot;);</b>
+<b class="nc">&nbsp;        HazelcastInstance hazelCastInstance = Hazelcast.getHazelcastInstanceByName(&quot;springservice&quot;);</b>
+<b class="nc">&nbsp;        if (hazelCastInstance != null) {</b>
+<b class="nc">&nbsp;            log.debug(&quot;Hazelcast already initialized&quot;);</b>
+<b class="nc">&nbsp;            return hazelCastInstance;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Config config = new Config();</b>
+<b class="nc">&nbsp;        config.setInstanceName(&quot;springservice&quot;);</b>
+<b class="nc">&nbsp;        config.getNetworkConfig().setPort(5701);</b>
+<b class="nc">&nbsp;        config.getNetworkConfig().setPortAutoIncrement(true);</b>
+&nbsp;
+&nbsp;        // In development, remove multicast auto-configuration
+<b class="nc">&nbsp;        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {</b>
+<b class="nc">&nbsp;            System.setProperty(&quot;hazelcast.local.localAddress&quot;, &quot;127.0.0.1&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;            config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);</b>
+<b class="nc">&nbsp;            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);</b>
+<b class="nc">&nbsp;            config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        config.setManagementCenterConfig(new ManagementCenterConfig());</b>
+<b class="nc">&nbsp;        config.addMapConfig(initializeDefaultMapConfig(jHipsterProperties));</b>
+<b class="nc">&nbsp;        return Hazelcast.newHazelcastInstance(config);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private MapConfig initializeDefaultMapConfig(JHipsterProperties jHipsterProperties) {
+<b class="nc">&nbsp;        MapConfig mapConfig = new MapConfig(&quot;default&quot;);</b>
+&nbsp;
+&nbsp;        /*
+&nbsp;        Number of backups. If 1 is set as the backup-count for example,
+&nbsp;        then all entries of the map will be copied to another JVM for
+&nbsp;        fail-safety. Valid numbers are 0 (no backup), 1, 2, 3.
+&nbsp;        */
+<b class="nc">&nbsp;        mapConfig.setBackupCount(jHipsterProperties.getCache().getHazelcast().getBackupCount());</b>
+&nbsp;
+&nbsp;        /*
+&nbsp;        Valid values are:
+&nbsp;        NONE (no eviction),
+&nbsp;        LRU (Least Recently Used),
+&nbsp;        LFU (Least Frequently Used).
+&nbsp;        NONE is the default.
+&nbsp;        */
+<b class="nc">&nbsp;        mapConfig.getEvictionConfig().setEvictionPolicy(EvictionPolicy.LRU);</b>
+&nbsp;
+&nbsp;        /*
+&nbsp;        Maximum size of the map. When max size is reached,
+&nbsp;        map is evicted based on the policy defined.
+&nbsp;        Any integer between 0 and Integer.MAX_VALUE. 0 means
+&nbsp;        Integer.MAX_VALUE. Default is 0.
+&nbsp;        */
+<b class="nc">&nbsp;        mapConfig.getEvictionConfig().setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);</b>
+&nbsp;
+<b class="nc">&nbsp;        return mapConfig;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private MapConfig initializeDomainMapConfig(JHipsterProperties jHipsterProperties) {
+<b class="nc">&nbsp;        MapConfig mapConfig = new MapConfig(&quot;com.cmi.tic.domain.*&quot;);</b>
+<b class="nc">&nbsp;        mapConfig.setTimeToLiveSeconds(jHipsterProperties.getCache().getHazelcast().getTimeToLiveSeconds());</b>
+<b class="nc">&nbsp;        return mapConfig;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired(required = false)
+&nbsp;    public void setGitProperties(GitProperties gitProperties) {
+<b class="nc">&nbsp;        this.gitProperties = gitProperties;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired(required = false)
+&nbsp;    public void setBuildProperties(BuildProperties buildProperties) {
+<b class="nc">&nbsp;        this.buildProperties = buildProperties;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Bean
+&nbsp;    public KeyGenerator keyGenerator() {
+<b class="nc">&nbsp;        return new PrefixedKeyGenerator(this.gitProperties, this.buildProperties);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,257 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AuthorizationHeaderUtil</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.security.oauth2</a>
+</div>
+
+<h1>Coverage Summary for Class: AuthorizationHeaderUtil (com.cmi.tic.security.oauth2)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AuthorizationHeaderUtil</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/78)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.security.oauth2;
+&nbsp;
+&nbsp;import com.cmi.tic.security.oauth2.OAuthIdpTokenResponseDTO;
+&nbsp;import java.net.URI;
+&nbsp;import java.time.Duration;
+&nbsp;import java.time.Instant;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.regex.Pattern;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.boot.web.client.RestTemplateBuilder;
+&nbsp;import org.springframework.http.MediaType;
+&nbsp;import org.springframework.http.RequestEntity;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.http.converter.FormHttpMessageConverter;
+&nbsp;import org.springframework.security.core.Authentication;
+&nbsp;import org.springframework.security.core.context.SecurityContextHolder;
+&nbsp;import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+&nbsp;import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+&nbsp;import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+&nbsp;import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+&nbsp;import org.springframework.security.oauth2.core.*;
+&nbsp;import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+&nbsp;import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+&nbsp;import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
+&nbsp;import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;import org.springframework.util.LinkedMultiValueMap;
+&nbsp;import org.springframework.util.MultiValueMap;
+&nbsp;import org.springframework.web.client.RestTemplate;
+&nbsp;
+&nbsp;@Component
+&nbsp;public class AuthorizationHeaderUtil {
+&nbsp;
+&nbsp;    private final OAuth2AuthorizedClientService clientService;
+&nbsp;    private final RestTemplateBuilder restTemplateBuilder;
+<b class="nc">&nbsp;    private final Logger log = LoggerFactory.getLogger(AuthorizationHeaderUtil.class);</b>
+&nbsp;
+<b class="nc">&nbsp;    public AuthorizationHeaderUtil(OAuth2AuthorizedClientService clientService, RestTemplateBuilder restTemplateBuilder) {</b>
+<b class="nc">&nbsp;        this.clientService = clientService;</b>
+<b class="nc">&nbsp;        this.restTemplateBuilder = restTemplateBuilder;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Optional&lt;String&gt; getAuthorizationHeader() {
+<b class="nc">&nbsp;        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</b>
+<b class="nc">&nbsp;        if (authentication instanceof OAuth2AuthenticationToken) {</b>
+<b class="nc">&nbsp;            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;</b>
+<b class="nc">&nbsp;            String name = oauthToken.getName();</b>
+<b class="nc">&nbsp;            String registrationId = oauthToken.getAuthorizedClientRegistrationId();</b>
+<b class="nc">&nbsp;            OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(registrationId, name);</b>
+&nbsp;
+<b class="nc">&nbsp;            if (null == client) {</b>
+<b class="nc">&nbsp;                throw new OAuth2AuthorizationException(new OAuth2Error(&quot;access_denied&quot;, &quot;The token is expired&quot;, null));</b>
+&nbsp;            }
+<b class="nc">&nbsp;            OAuth2AccessToken accessToken = client.getAccessToken();</b>
+&nbsp;
+<b class="nc">&nbsp;            if (accessToken != null) {</b>
+<b class="nc">&nbsp;                String tokenType = accessToken.getTokenType().getValue();</b>
+<b class="nc">&nbsp;                String accessTokenValue = accessToken.getTokenValue();</b>
+<b class="nc">&nbsp;                if (isExpired(accessToken)) {</b>
+<b class="nc">&nbsp;                    log.info(&quot;AccessToken expired, refreshing automatically&quot;);</b>
+<b class="nc">&nbsp;                    accessTokenValue = refreshToken(client, oauthToken);</b>
+<b class="nc">&nbsp;                    if (null == accessTokenValue) {</b>
+<b class="nc">&nbsp;                        SecurityContextHolder.getContext().setAuthentication(null);</b>
+<b class="nc">&nbsp;                        throw new OAuth2AuthorizationException(new OAuth2Error(&quot;access_denied&quot;, &quot;The token is expired&quot;, null));</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="nc">&nbsp;                String authorizationHeaderValue = String.format(&quot;%s %s&quot;, tokenType, accessTokenValue);</b>
+<b class="nc">&nbsp;                return Optional.of(authorizationHeaderValue);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } else if (authentication instanceof JwtAuthenticationToken) {</b>
+<b class="nc">&nbsp;            JwtAuthenticationToken accessToken = (JwtAuthenticationToken) authentication;</b>
+<b class="nc">&nbsp;            String tokenValue = accessToken.getToken().getTokenValue();</b>
+<b class="nc">&nbsp;            String authorizationHeaderValue = String.format(&quot;%s %s&quot;, OAuth2AccessToken.TokenType.BEARER.getValue(), tokenValue);</b>
+<b class="nc">&nbsp;            return Optional.of(authorizationHeaderValue);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return Optional.empty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String refreshToken(OAuth2AuthorizedClient client, OAuth2AuthenticationToken oauthToken) {
+<b class="nc">&nbsp;        OAuth2AccessTokenResponse atr = refreshTokenClient(client);</b>
+<b class="nc">&nbsp;        if (atr == null || atr.getAccessToken() == null) {</b>
+<b class="nc">&nbsp;            log.info(&quot;Failed to refresh token for user&quot;);</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        OAuth2RefreshToken refreshToken = atr.getRefreshToken() != null ? atr.getRefreshToken() : client.getRefreshToken();</b>
+<b class="nc">&nbsp;        OAuth2AuthorizedClient updatedClient = new OAuth2AuthorizedClient(</b>
+<b class="nc">&nbsp;            client.getClientRegistration(),</b>
+<b class="nc">&nbsp;            client.getPrincipalName(),</b>
+<b class="nc">&nbsp;            atr.getAccessToken(),</b>
+&nbsp;            refreshToken
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        clientService.saveAuthorizedClient(updatedClient, oauthToken);</b>
+<b class="nc">&nbsp;        return atr.getAccessToken().getTokenValue();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private OAuth2AccessTokenResponse refreshTokenClient(OAuth2AuthorizedClient currentClient) {
+<b class="nc">&nbsp;        MultiValueMap&lt;String, String&gt; formParameters = new LinkedMultiValueMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        formParameters.add(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.REFRESH_TOKEN.getValue());</b>
+<b class="nc">&nbsp;        formParameters.add(OAuth2ParameterNames.REFRESH_TOKEN, currentClient.getRefreshToken().getTokenValue());</b>
+<b class="nc">&nbsp;        formParameters.add(OAuth2ParameterNames.CLIENT_ID, currentClient.getClientRegistration().getClientId());</b>
+<b class="nc">&nbsp;        RequestEntity requestEntity = RequestEntity</b>
+<b class="nc">&nbsp;            .post(URI.create(currentClient.getClientRegistration().getProviderDetails().getTokenUri()))</b>
+<b class="nc">&nbsp;            .contentType(MediaType.APPLICATION_FORM_URLENCODED)</b>
+<b class="nc">&nbsp;            .body(formParameters);</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            RestTemplate r = restTemplate(</b>
+<b class="nc">&nbsp;                currentClient.getClientRegistration().getClientId(),</b>
+<b class="nc">&nbsp;                currentClient.getClientRegistration().getClientSecret()</b>
+&nbsp;            );
+<b class="nc">&nbsp;            ResponseEntity&lt;OAuthIdpTokenResponseDTO&gt; responseEntity = r.exchange(requestEntity, OAuthIdpTokenResponseDTO.class);</b>
+<b class="nc">&nbsp;            return toOAuth2AccessTokenResponse(responseEntity.getBody());</b>
+<b class="nc">&nbsp;        } catch (OAuth2AuthorizationException e) {</b>
+<b class="nc">&nbsp;            log.error(&quot;Unable to refresh token&quot;, e);</b>
+<b class="nc">&nbsp;            throw new OAuth2AuthenticationException(e.getError(), e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private OAuth2AccessTokenResponse toOAuth2AccessTokenResponse(OAuthIdpTokenResponseDTO oAuthIdpResponse) {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; additionalParameters = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        additionalParameters.put(&quot;id_token&quot;, oAuthIdpResponse.getIdToken());</b>
+<b class="nc">&nbsp;        additionalParameters.put(&quot;not-before-policy&quot;, oAuthIdpResponse.getNotBefore());</b>
+<b class="nc">&nbsp;        additionalParameters.put(&quot;refresh_expires_in&quot;, oAuthIdpResponse.getRefreshExpiresIn());</b>
+<b class="nc">&nbsp;        additionalParameters.put(&quot;session_state&quot;, oAuthIdpResponse.getSessionState());</b>
+<b class="nc">&nbsp;        return OAuth2AccessTokenResponse</b>
+<b class="nc">&nbsp;            .withToken(oAuthIdpResponse.getAccessToken())</b>
+<b class="nc">&nbsp;            .expiresIn(oAuthIdpResponse.getExpiresIn())</b>
+<b class="nc">&nbsp;            .refreshToken(oAuthIdpResponse.getRefreshToken())</b>
+<b class="nc">&nbsp;            .scopes(Pattern.compile(&quot;\\s&quot;).splitAsStream(oAuthIdpResponse.getScope()).collect(Collectors.toSet()))</b>
+<b class="nc">&nbsp;            .tokenType(OAuth2AccessToken.TokenType.BEARER)</b>
+<b class="nc">&nbsp;            .additionalParameters(additionalParameters)</b>
+<b class="nc">&nbsp;            .build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private RestTemplate restTemplate(String clientId, String clientSecret) {
+<b class="nc">&nbsp;        return restTemplateBuilder</b>
+<b class="nc">&nbsp;            .additionalMessageConverters(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter())</b>
+<b class="nc">&nbsp;            .errorHandler(new OAuth2ErrorResponseErrorHandler())</b>
+<b class="nc">&nbsp;            .basicAuthentication(clientId, clientSecret)</b>
+<b class="nc">&nbsp;            .build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean isExpired(OAuth2AccessToken accessToken) {
+<b class="nc">&nbsp;        Instant now = Instant.now();</b>
+<b class="nc">&nbsp;        Instant expiresAt = accessToken.getExpiresAt();</b>
+<b class="nc">&nbsp;        return now.isAfter(expiresAt.minus(Duration.ofMinutes(1L)));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BadRequestAlertException</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.web.rest.errors</a>
+</div>
+
+<h1>Coverage Summary for Class: BadRequestAlertException (com.cmi.tic.web.rest.errors)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BadRequestAlertException</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/18)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.web.rest.errors;
+&nbsp;
+&nbsp;import java.net.URI;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.web.ErrorResponseException;
+&nbsp;import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
+&nbsp;import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
+&nbsp;
+&nbsp;@SuppressWarnings(&quot;java:S110&quot;) // Inheritance tree of classes should not be too deep
+&nbsp;public class BadRequestAlertException extends ErrorResponseException {
+&nbsp;
+&nbsp;    private static final long serialVersionUID = 1L;
+&nbsp;
+&nbsp;    private final String entityName;
+&nbsp;
+&nbsp;    private final String errorKey;
+&nbsp;
+&nbsp;    public BadRequestAlertException(String defaultMessage, String entityName, String errorKey) {
+<b class="nc">&nbsp;        this(ErrorConstants.DEFAULT_TYPE, defaultMessage, entityName, errorKey);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public BadRequestAlertException(URI type, String defaultMessage, String entityName, String errorKey) {
+<b class="nc">&nbsp;        super(</b>
+&nbsp;            HttpStatus.BAD_REQUEST,
+&nbsp;            ProblemDetailWithCauseBuilder
+<b class="nc">&nbsp;                .instance()</b>
+<b class="nc">&nbsp;                .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;                .withType(type)</b>
+<b class="nc">&nbsp;                .withTitle(defaultMessage)</b>
+<b class="nc">&nbsp;                .withProperty(&quot;message&quot;, &quot;error.&quot; + errorKey)</b>
+<b class="nc">&nbsp;                .withProperty(&quot;params&quot;, entityName)</b>
+<b class="nc">&nbsp;                .build(),</b>
+&nbsp;            null
+&nbsp;        );
+<b class="nc">&nbsp;        this.entityName = entityName;</b>
+<b class="nc">&nbsp;        this.errorKey = errorKey;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getEntityName() {
+<b class="nc">&nbsp;        return entityName;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getErrorKey() {
+<b class="nc">&nbsp;        return errorKey;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ProblemDetailWithCause getProblemDetailWithCause() {
+<b class="nc">&nbsp;        return (ProblemDetailWithCause) this.getBody();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Map&lt;String, Object&gt; getAlertParameters(String entityName, String errorKey) {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; parameters = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        parameters.put(&quot;message&quot;, &quot;error.&quot; + errorKey);</b>
+<b class="nc">&nbsp;        parameters.put(&quot;params&quot;, entityName);</b>
+<b class="nc">&nbsp;        return parameters;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

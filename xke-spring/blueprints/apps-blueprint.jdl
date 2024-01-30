@@ -1,0 +1,13 @@
+application {
+    config {
+        baseName springservice
+        applicationType microservice
+        packageName com.cmi.tic
+        authenticationType oauth2
+        serverPort 9000
+        databaseType no
+        prodDatabaseType no
+        logManagementType no
+        serviceDiscoveryType no
+    }
+}

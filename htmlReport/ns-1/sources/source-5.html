@@ -1,0 +1,215 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SpringserviceApp</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic</a>
+</div>
+
+<h1>Coverage Summary for Class: SpringserviceApp (com.cmi.tic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SpringserviceApp</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/33)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic;
+&nbsp;
+&nbsp;import com.cmi.tic.config.ApplicationProperties;
+&nbsp;import com.cmi.tic.config.CRLFLogConverter;
+&nbsp;import jakarta.annotation.PostConstruct;
+&nbsp;import java.net.InetAddress;
+&nbsp;import java.net.UnknownHostException;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.Optional;
+&nbsp;import org.apache.commons.lang3.StringUtils;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.boot.SpringApplication;
+&nbsp;import org.springframework.boot.autoconfigure.SpringBootApplication;
+&nbsp;import org.springframework.boot.context.properties.EnableConfigurationProperties;
+&nbsp;import org.springframework.core.env.Environment;
+&nbsp;import tech.jhipster.config.DefaultProfileUtil;
+&nbsp;import tech.jhipster.config.JHipsterConstants;
+&nbsp;
+&nbsp;@SpringBootApplication
+&nbsp;@EnableConfigurationProperties({ ApplicationProperties.class })
+&nbsp;public class SpringserviceApp {
+&nbsp;
+<b class="nc">&nbsp;    private static final Logger log = LoggerFactory.getLogger(SpringserviceApp.class);</b>
+&nbsp;
+&nbsp;    private final Environment env;
+&nbsp;
+<b class="nc">&nbsp;    public SpringserviceApp(Environment env) {</b>
+<b class="nc">&nbsp;        this.env = env;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Initializes springservice.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Spring profiles can be configured with a program argument --spring.profiles.active=your-active-profile
+&nbsp;     * &lt;p&gt;
+&nbsp;     * You can find more information on how profiles work with JHipster on &lt;a href=&quot;https://www.jhipster.tech/profiles/&quot;&gt;https://www.jhipster.tech/profiles/&lt;/a&gt;.
+&nbsp;     */
+&nbsp;    @PostConstruct
+&nbsp;    public void initApplication() {
+<b class="nc">&nbsp;        Collection&lt;String&gt; activeProfiles = Arrays.asList(env.getActiveProfiles());</b>
+<b class="nc">&nbsp;        if (</b>
+<b class="nc">&nbsp;            activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) &amp;&amp;</b>
+<b class="nc">&nbsp;            activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)</b>
+&nbsp;        ) {
+<b class="nc">&nbsp;            log.error(</b>
+&nbsp;                &quot;You have misconfigured your application! It should not run &quot; + &quot;with both the &#39;dev&#39; and &#39;prod&#39; profiles at the same time.&quot;
+&nbsp;            );
+&nbsp;        }
+<b class="nc">&nbsp;        if (</b>
+<b class="nc">&nbsp;            activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) &amp;&amp;</b>
+<b class="nc">&nbsp;            activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_CLOUD)</b>
+&nbsp;        ) {
+<b class="nc">&nbsp;            log.error(</b>
+&nbsp;                &quot;You have misconfigured your application! It should not &quot; + &quot;run with both the &#39;dev&#39; and &#39;cloud&#39; profiles at the same time.&quot;
+&nbsp;            );
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Main method, used to run the application.
+&nbsp;     *
+&nbsp;     * @param args the command line arguments.
+&nbsp;     */
+&nbsp;    public static void main(String[] args) {
+<b class="nc">&nbsp;        SpringApplication app = new SpringApplication(SpringserviceApp.class);</b>
+<b class="nc">&nbsp;        DefaultProfileUtil.addDefaultProfile(app);</b>
+<b class="nc">&nbsp;        Environment env = app.run(args).getEnvironment();</b>
+<b class="nc">&nbsp;        logApplicationStartup(env);</b>
+<b class="nc">&nbsp;        BasicMathOperations basicMath = new BasicMathOperations();</b>
+<b class="nc">&nbsp;        int resultInt = basicMath.divide(5, 5);</b>
+&nbsp;
+<b class="nc">&nbsp;        log.info(&quot;Result of integer division: {}&quot;, resultInt);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static void logApplicationStartup(Environment env) {
+<b class="nc">&nbsp;        String protocol = Optional.ofNullable(env.getProperty(&quot;server.ssl.key-store&quot;)).map(key -&gt; &quot;https&quot;).orElse(&quot;http&quot;);</b>
+<b class="nc">&nbsp;        String serverPort = env.getProperty(&quot;server.port&quot;);</b>
+<b class="nc">&nbsp;        String contextPath = Optional</b>
+<b class="nc">&nbsp;            .ofNullable(env.getProperty(&quot;server.servlet.context-path&quot;))</b>
+<b class="nc">&nbsp;            .filter(StringUtils::isNotBlank)</b>
+<b class="nc">&nbsp;            .orElse(&quot;/&quot;);</b>
+<b class="nc">&nbsp;        String hostAddress = &quot;localhost&quot;;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            hostAddress = InetAddress.getLocalHost().getHostAddress();</b>
+<b class="nc">&nbsp;        } catch (UnknownHostException e) {</b>
+<b class="nc">&nbsp;            log.warn(&quot;The host name could not be determined, using `localhost` as fallback&quot;);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        log.info(</b>
+&nbsp;            CRLFLogConverter.CRLF_SAFE_MARKER,
+&nbsp;            &quot;&quot;&quot;
+&nbsp;
+&nbsp;                ----------------------------------------------------------
+&nbsp;                \tApplication &#39;{}&#39; is running! Access URLs:
+&nbsp;                \tLocal: \t\t{}://localhost:{}{}
+&nbsp;                \tExternal: \t{}://{}:{}{}
+&nbsp;                \tProfile(s): \t{}
+&nbsp;                ----------------------------------------------------------&quot;&quot;&quot;,
+<b class="nc">&nbsp;            env.getProperty(&quot;spring.application.name&quot;),</b>
+&nbsp;            protocol,
+&nbsp;            serverPort,
+&nbsp;            contextPath,
+&nbsp;            protocol,
+&nbsp;            hostAddress,
+&nbsp;            serverPort,
+&nbsp;            contextPath,
+<b class="nc">&nbsp;            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

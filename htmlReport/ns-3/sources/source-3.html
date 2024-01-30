@@ -1,0 +1,121 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AuthorizedFeignClient</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.client</a>
+</div>
+
+<h1>Coverage Summary for Class: AuthorizedFeignClient (com.cmi.tic.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">AuthorizedFeignClient</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.client;
+&nbsp;
+&nbsp;import java.lang.annotation.*;
+&nbsp;import org.springframework.cloud.openfeign.FeignClient;
+&nbsp;import org.springframework.cloud.openfeign.FeignClientsConfiguration;
+&nbsp;import org.springframework.core.annotation.AliasFor;
+&nbsp;
+&nbsp;@Retention(RetentionPolicy.RUNTIME)
+&nbsp;@Target(ElementType.TYPE)
+&nbsp;@Documented
+&nbsp;@FeignClient
+&nbsp;public @interface AuthorizedFeignClient {
+&nbsp;    @AliasFor(annotation = FeignClient.class, attribute = &quot;name&quot;)
+&nbsp;    String name() default &quot;&quot;;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A custom {@code @Configuration} for the feign client.
+&nbsp;     *
+&nbsp;     * Can contain override {@code @Bean} definition for the pieces that
+&nbsp;     * make up the client, for instance {@link feign.codec.Decoder},
+&nbsp;     * {@link feign.codec.Encoder}, {@link feign.Contract}.
+&nbsp;     *
+&nbsp;     * @return the custom {@code @Configuration} for the feign client.
+&nbsp;     * @see FeignClientsConfiguration for the defaults.
+&nbsp;     */
+&nbsp;    @AliasFor(annotation = FeignClient.class, attribute = &quot;configuration&quot;)
+&nbsp;    Class&lt;?&gt;[] configuration() default OAuth2InterceptedFeignConfiguration.class;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * An absolute URL or resolvable hostname (the protocol is optional).
+&nbsp;     * @return the URL.
+&nbsp;     */
+&nbsp;    String url() default &quot;&quot;;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether 404s should be decoded instead of throwing FeignExceptions.
+&nbsp;     * @return true if 404s will be decoded; false otherwise.
+&nbsp;     */
+&nbsp;    boolean decode404() default false;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Fallback class for the specified Feign client interface. The fallback class must
+&nbsp;     * implement the interface annotated by this annotation and be a valid Spring bean.
+&nbsp;     * @return the fallback class for the specified Feign client interface.
+&nbsp;     */
+&nbsp;    Class&lt;?&gt; fallback() default void.class;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Path prefix to be used by all method-level mappings.
+&nbsp;     * @return the path prefix to be used by all method-level mappings.
+&nbsp;     */
+&nbsp;    String path() default &quot;&quot;;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

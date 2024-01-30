@@ -1,0 +1,346 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ExceptionTranslator</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.web.rest.errors</a>
+</div>
+
+<h1>Coverage Summary for Class: ExceptionTranslator (com.cmi.tic.web.rest.errors)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExceptionTranslator</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/80)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.web.rest.errors;
+&nbsp;
+&nbsp;import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
+&nbsp;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import java.net.URI;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;import org.apache.commons.lang3.StringUtils;
+&nbsp;import org.springframework.beans.factory.annotation.Value;
+&nbsp;import org.springframework.core.env.Environment;
+&nbsp;import org.springframework.http.HttpHeaders;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.HttpStatusCode;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.http.converter.HttpMessageConversionException;
+&nbsp;import org.springframework.lang.Nullable;
+&nbsp;import org.springframework.security.access.AccessDeniedException;
+&nbsp;import org.springframework.security.authentication.BadCredentialsException;
+&nbsp;import org.springframework.validation.BindingResult;
+&nbsp;import org.springframework.web.ErrorResponse;
+&nbsp;import org.springframework.web.ErrorResponseException;
+&nbsp;import org.springframework.web.bind.MethodArgumentNotValidException;
+&nbsp;import org.springframework.web.bind.annotation.ControllerAdvice;
+&nbsp;import org.springframework.web.bind.annotation.ExceptionHandler;
+&nbsp;import org.springframework.web.bind.annotation.ResponseStatus;
+&nbsp;import org.springframework.web.context.request.NativeWebRequest;
+&nbsp;import org.springframework.web.context.request.WebRequest;
+&nbsp;import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+&nbsp;import tech.jhipster.config.JHipsterConstants;
+&nbsp;import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
+&nbsp;import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
+&nbsp;import tech.jhipster.web.util.HeaderUtil;
+&nbsp;
+&nbsp;/**
+&nbsp; * Controller advice to translate the server side exceptions to client-friendly json structures.
+&nbsp; * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
+&nbsp; */
+&nbsp;@ControllerAdvice
+&nbsp;public class ExceptionTranslator extends ResponseEntityExceptionHandler {
+&nbsp;
+&nbsp;    private static final String FIELD_ERRORS_KEY = &quot;fieldErrors&quot;;
+&nbsp;    private static final String MESSAGE_KEY = &quot;message&quot;;
+&nbsp;    private static final String PATH_KEY = &quot;path&quot;;
+&nbsp;
+&nbsp;    @Value(&quot;${jhipster.clientApp.name}&quot;)
+&nbsp;    private String applicationName;
+&nbsp;
+&nbsp;    private final Environment env;
+&nbsp;
+<b class="nc">&nbsp;    public ExceptionTranslator(Environment env) {</b>
+<b class="nc">&nbsp;        this.env = env;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ExceptionHandler
+&nbsp;    public ResponseEntity&lt;Object&gt; handleAnyException(Throwable ex, NativeWebRequest request) {
+<b class="nc">&nbsp;        ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);</b>
+<b class="nc">&nbsp;        return handleExceptionInternal(</b>
+&nbsp;            (Exception) ex,
+&nbsp;            pdCause,
+<b class="nc">&nbsp;            buildHeaders(ex, request),</b>
+<b class="nc">&nbsp;            HttpStatusCode.valueOf(pdCause.getStatus()),</b>
+&nbsp;            request
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    @Nullable
+&nbsp;    @Override
+&nbsp;    protected ResponseEntity&lt;Object&gt; handleExceptionInternal(
+&nbsp;        Exception ex,
+&nbsp;        @Nullable Object body,
+&nbsp;        HttpHeaders headers,
+&nbsp;        HttpStatusCode statusCode,
+&nbsp;        WebRequest request
+&nbsp;    ) {
+<b class="nc">&nbsp;        body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (NativeWebRequest) request) : body;</b>
+<b class="nc">&nbsp;        return super.handleExceptionInternal(ex, body, headers, statusCode, request);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    protected ProblemDetailWithCause wrapAndCustomizeProblem(Throwable ex, NativeWebRequest request) {
+<b class="nc">&nbsp;        return customizeProblem(getProblemDetailWithCause(ex), ex, request);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ProblemDetailWithCause getProblemDetailWithCause(Throwable ex) {
+<b class="nc">&nbsp;        if (</b>
+<b class="nc">&nbsp;            ex instanceof ErrorResponseException exp &amp;&amp; exp.getBody() instanceof ProblemDetailWithCause</b>
+<b class="nc">&nbsp;        ) return (ProblemDetailWithCause) exp.getBody();</b>
+<b class="nc">&nbsp;        return ProblemDetailWithCauseBuilder.instance().withStatus(toStatus(ex).value()).build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    protected ProblemDetailWithCause customizeProblem(ProblemDetailWithCause problem, Throwable err, NativeWebRequest request) {
+<b class="nc">&nbsp;        if (problem.getStatus() &lt;= 0) problem.setStatus(toStatus(err));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (problem.getType() == null || problem.getType().equals(URI.create(&quot;about:blank&quot;))) problem.setType(getMappedType(err));</b>
+&nbsp;
+&nbsp;        // higher precedence to Custom/ResponseStatus types
+<b class="nc">&nbsp;        String title = extractTitle(err, problem.getStatus());</b>
+<b class="nc">&nbsp;        String problemTitle = problem.getTitle();</b>
+<b class="nc">&nbsp;        if (problemTitle == null || !problemTitle.equals(title)) {</b>
+<b class="nc">&nbsp;            problem.setTitle(title);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (problem.getDetail() == null) {</b>
+&nbsp;            // higher precedence to cause
+<b class="nc">&nbsp;            problem.setDetail(getCustomizedErrorDetails(err));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; problemProperties = problem.getProperties();</b>
+<b class="nc">&nbsp;        if (problemProperties == null || !problemProperties.containsKey(MESSAGE_KEY)) problem.setProperty(</b>
+&nbsp;            MESSAGE_KEY,
+<b class="nc">&nbsp;            getMappedMessageKey(err) != null ? getMappedMessageKey(err) : &quot;error.http.&quot; + problem.getStatus()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        if (problemProperties == null || !problemProperties.containsKey(PATH_KEY)) problem.setProperty(PATH_KEY, getPathValue(request));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (</b>
+&nbsp;            (err instanceof MethodArgumentNotValidException) &amp;&amp;
+<b class="nc">&nbsp;            (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))</b>
+<b class="nc">&nbsp;        ) problem.setProperty(FIELD_ERRORS_KEY, getFieldErrors((MethodArgumentNotValidException) err));</b>
+&nbsp;
+<b class="nc">&nbsp;        problem.setCause(buildCause(err.getCause(), request).orElse(null));</b>
+&nbsp;
+<b class="nc">&nbsp;        return problem;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractTitle(Throwable err, int statusCode) {
+<b class="nc">&nbsp;        return getCustomizedTitle(err) != null ? getCustomizedTitle(err) : extractTitleForResponseStatus(err, statusCode);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;FieldErrorVM&gt; getFieldErrors(MethodArgumentNotValidException ex) {
+<b class="nc">&nbsp;        return ex</b>
+<b class="nc">&nbsp;            .getBindingResult()</b>
+<b class="nc">&nbsp;            .getFieldErrors()</b>
+<b class="nc">&nbsp;            .stream()</b>
+<b class="nc">&nbsp;            .map(f -&gt;</b>
+<b class="nc">&nbsp;                new FieldErrorVM(</b>
+<b class="nc">&nbsp;                    f.getObjectName().replaceFirst(&quot;DTO$&quot;, &quot;&quot;),</b>
+<b class="nc">&nbsp;                    f.getField(),</b>
+<b class="nc">&nbsp;                    StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode()</b>
+&nbsp;                )
+&nbsp;            )
+<b class="nc">&nbsp;            .toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractTitleForResponseStatus(Throwable err, int statusCode) {
+<b class="nc">&nbsp;        ResponseStatus specialStatus = extractResponseStatus(err);</b>
+<b class="nc">&nbsp;        return specialStatus == null ? HttpStatus.valueOf(statusCode).getReasonPhrase() : specialStatus.reason();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractURI(NativeWebRequest request) {
+<b class="nc">&nbsp;        HttpServletRequest nativeRequest = request.getNativeRequest(HttpServletRequest.class);</b>
+<b class="nc">&nbsp;        return nativeRequest != null ? nativeRequest.getRequestURI() : StringUtils.EMPTY;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HttpStatus toStatus(final Throwable throwable) {
+&nbsp;        // Let the ErrorResponse take this responsibility
+<b class="nc">&nbsp;        if (throwable instanceof ErrorResponse err) return HttpStatus.valueOf(err.getBody().getStatus());</b>
+&nbsp;
+<b class="nc">&nbsp;        return Optional</b>
+<b class="nc">&nbsp;            .ofNullable(getMappedStatus(throwable))</b>
+<b class="nc">&nbsp;            .orElse(</b>
+<b class="nc">&nbsp;                Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value).orElse(HttpStatus.INTERNAL_SERVER_ERROR)</b>
+&nbsp;            );
+&nbsp;    }
+&nbsp;
+&nbsp;    private ResponseStatus extractResponseStatus(final Throwable throwable) {
+<b class="nc">&nbsp;        return Optional.ofNullable(resolveResponseStatus(throwable)).orElse(null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ResponseStatus resolveResponseStatus(final Throwable type) {
+<b class="nc">&nbsp;        final ResponseStatus candidate = findMergedAnnotation(type.getClass(), ResponseStatus.class);</b>
+<b class="nc">&nbsp;        return candidate == null &amp;&amp; type.getCause() != null ? resolveResponseStatus(type.getCause()) : candidate;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private URI getMappedType(Throwable err) {
+<b class="nc">&nbsp;        if (err instanceof MethodArgumentNotValidException exp) return ErrorConstants.CONSTRAINT_VIOLATION_TYPE;</b>
+<b class="nc">&nbsp;        return ErrorConstants.DEFAULT_TYPE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String getMappedMessageKey(Throwable err) {
+<b class="nc">&nbsp;        if (err instanceof MethodArgumentNotValidException) return ErrorConstants.ERR_VALIDATION;</b>
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String getCustomizedTitle(Throwable err) {
+<b class="nc">&nbsp;        if (err instanceof MethodArgumentNotValidException exp) return &quot;Method argument not valid&quot;;</b>
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String getCustomizedErrorDetails(Throwable err) {
+<b class="nc">&nbsp;        Collection&lt;String&gt; activeProfiles = Arrays.asList(env.getActiveProfiles());</b>
+<b class="nc">&nbsp;        if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {</b>
+<b class="nc">&nbsp;            if (err instanceof HttpMessageConversionException) return &quot;Unable to convert http message&quot;;</b>
+<b class="nc">&nbsp;            if (containsPackageName(err.getMessage())) return &quot;Unexpected runtime exception&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return err.getCause() != null ? err.getCause().getMessage() : err.getMessage();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HttpStatus getMappedStatus(Throwable err) {
+&nbsp;        // Where we disagree with Spring defaults
+<b class="nc">&nbsp;        if (err instanceof AccessDeniedException) return HttpStatus.FORBIDDEN;</b>
+<b class="nc">&nbsp;        if (err instanceof BadCredentialsException) return HttpStatus.UNAUTHORIZED;</b>
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private URI getPathValue(NativeWebRequest request) {
+<b class="nc">&nbsp;        if (request == null) return URI.create(&quot;about:blank&quot;);</b>
+<b class="nc">&nbsp;        return URI.create(extractURI(request));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HttpHeaders buildHeaders(Throwable err, NativeWebRequest request) {
+<b class="nc">&nbsp;        return err instanceof BadRequestAlertException</b>
+<b class="nc">&nbsp;            ? HeaderUtil.createFailureAlert(</b>
+&nbsp;                applicationName,
+&nbsp;                true,
+<b class="nc">&nbsp;                ((BadRequestAlertException) err).getEntityName(),</b>
+<b class="nc">&nbsp;                ((BadRequestAlertException) err).getErrorKey(),</b>
+<b class="nc">&nbsp;                ((BadRequestAlertException) err).getMessage()</b>
+&nbsp;            )
+<b class="nc">&nbsp;            : null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Optional&lt;ProblemDetailWithCause&gt; buildCause(final Throwable throwable, NativeWebRequest request) {
+<b class="nc">&nbsp;        if (throwable != null &amp;&amp; isCasualChainEnabled()) {</b>
+<b class="nc">&nbsp;            return Optional.of(customizeProblem(getProblemDetailWithCause(throwable), throwable, request));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return Optional.ofNullable(null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean isCasualChainEnabled() {
+&nbsp;        // Customize as per the needs
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean containsPackageName(String message) {
+&nbsp;        // This list is for sure not complete
+<b class="nc">&nbsp;        return StringUtils.containsAny(message, &quot;org.&quot;, &quot;java.&quot;, &quot;net.&quot;, &quot;jakarta.&quot;, &quot;javax.&quot;, &quot;com.&quot;, &quot;io.&quot;, &quot;de.&quot;, &quot;com.cmi.tic&quot;);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

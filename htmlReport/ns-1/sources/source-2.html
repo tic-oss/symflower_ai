@@ -1,0 +1,139 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BasicMathOperations</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic</a>
+</div>
+
+<h1>Coverage Summary for Class: BasicMathOperations (com.cmi.tic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BasicMathOperations</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/16)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic;
+&nbsp;
+<b class="nc">&nbsp;public class BasicMathOperations {</b>
+&nbsp;
+&nbsp;    public int divide(int dividend, int divisor) {
+<b class="nc">&nbsp;        if (divisor == 0) {</b>
+<b class="nc">&nbsp;            throw new ArithmeticException(&quot;Cannot divide by zero&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (dividend == Integer.MIN_VALUE &amp;&amp; divisor == -1) {</b>
+<b class="nc">&nbsp;            throw new ArithmeticException(&quot;Integer overflow: &quot; + dividend + &quot; / &quot; + divisor);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        int sign = (dividend &lt; 0) ^ (divisor &lt; 0) ? -1 : 1;</b>
+&nbsp;
+<b class="nc">&nbsp;        long absDividend = Math.abs((long) dividend);</b>
+<b class="nc">&nbsp;        long absDivisor = Math.abs((long) divisor);</b>
+&nbsp;
+<b class="nc">&nbsp;        long result = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;        while (absDividend &gt;= absDivisor) {</b>
+<b class="nc">&nbsp;            absDividend -= absDivisor;</b>
+<b class="nc">&nbsp;            result++;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        result *= sign;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (result &gt; Integer.MAX_VALUE || result &lt; Integer.MIN_VALUE) {</b>
+<b class="nc">&nbsp;            throw new ArithmeticException(&quot;Integer overflow: &quot; + dividend + &quot; / &quot; + divisor);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return (int) result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>

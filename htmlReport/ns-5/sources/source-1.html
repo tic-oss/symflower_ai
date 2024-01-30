@@ -1,0 +1,221 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SecurityUtils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.cmi.tic.security</a>
+</div>
+
+<h1>Coverage Summary for Class: SecurityUtils (com.cmi.tic.security)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SecurityUtils</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/30)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.cmi.tic.security;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;import java.util.stream.Stream;
+&nbsp;import org.springframework.security.core.Authentication;
+&nbsp;import org.springframework.security.core.GrantedAuthority;
+&nbsp;import org.springframework.security.core.authority.SimpleGrantedAuthority;
+&nbsp;import org.springframework.security.core.context.SecurityContext;
+&nbsp;import org.springframework.security.core.context.SecurityContextHolder;
+&nbsp;import org.springframework.security.core.userdetails.UserDetails;
+&nbsp;import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+&nbsp;import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+&nbsp;
+&nbsp;/**
+&nbsp; * Utility class for Spring Security.
+&nbsp; */
+&nbsp;public final class SecurityUtils {
+&nbsp;
+&nbsp;    public static final String CLAIMS_NAMESPACE = &quot;https://www.jhipster.tech/&quot;;
+&nbsp;
+&nbsp;    private SecurityUtils() {}
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Get the login of the current user.
+&nbsp;     *
+&nbsp;     * @return the login of the current user.
+&nbsp;     */
+&nbsp;    public static Optional&lt;String&gt; getCurrentUserLogin() {
+<b class="nc">&nbsp;        SecurityContext securityContext = SecurityContextHolder.getContext();</b>
+<b class="nc">&nbsp;        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static String extractPrincipal(Authentication authentication) {
+<b class="nc">&nbsp;        if (authentication == null) {</b>
+<b class="nc">&nbsp;            return null;</b>
+<b class="nc">&nbsp;        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {</b>
+<b class="nc">&nbsp;            return springSecurityUser.getUsername();</b>
+<b class="nc">&nbsp;        } else if (authentication instanceof JwtAuthenticationToken) {</b>
+<b class="nc">&nbsp;            return (String) ((JwtAuthenticationToken) authentication).getToken().getClaims().get(&quot;preferred_username&quot;);</b>
+<b class="nc">&nbsp;        } else if (authentication.getPrincipal() instanceof DefaultOidcUser) {</b>
+<b class="nc">&nbsp;            Map&lt;String, Object&gt; attributes = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();</b>
+<b class="nc">&nbsp;            if (attributes.containsKey(&quot;preferred_username&quot;)) {</b>
+<b class="nc">&nbsp;                return (String) attributes.get(&quot;preferred_username&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } else if (authentication.getPrincipal() instanceof String s) {</b>
+<b class="nc">&nbsp;            return s;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Check if a user is authenticated.
+&nbsp;     *
+&nbsp;     * @return true if the user is authenticated, false otherwise.
+&nbsp;     */
+&nbsp;    public static boolean isAuthenticated() {
+<b class="nc">&nbsp;        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</b>
+<b class="nc">&nbsp;        return authentication != null &amp;&amp; getAuthorities(authentication).noneMatch(AuthoritiesConstants.ANONYMOUS::equals);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if the current user has any of the authorities.
+&nbsp;     *
+&nbsp;     * @param authorities the authorities to check.
+&nbsp;     * @return true if the current user has any of the authorities, false otherwise.
+&nbsp;     */
+&nbsp;    public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {
+<b class="nc">&nbsp;        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</b>
+<b class="nc">&nbsp;        return (</b>
+<b class="nc">&nbsp;            authentication != null &amp;&amp; getAuthorities(authentication).anyMatch(authority -&gt; Arrays.asList(authorities).contains(authority))</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if the current user has none of the authorities.
+&nbsp;     *
+&nbsp;     * @param authorities the authorities to check.
+&nbsp;     * @return true if the current user has none of the authorities, false otherwise.
+&nbsp;     */
+&nbsp;    public static boolean hasCurrentUserNoneOfAuthorities(String... authorities) {
+<b class="nc">&nbsp;        return !hasCurrentUserAnyOfAuthorities(authorities);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if the current user has a specific authority.
+&nbsp;     *
+&nbsp;     * @param authority the authority to check.
+&nbsp;     * @return true if the current user has the authority, false otherwise.
+&nbsp;     */
+&nbsp;    public static boolean hasCurrentUserThisAuthority(String authority) {
+<b class="nc">&nbsp;        return hasCurrentUserAnyOfAuthorities(authority);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Stream&lt;String&gt; getAuthorities(Authentication authentication) {
+<b class="nc">&nbsp;        Collection&lt;? extends GrantedAuthority&gt; authorities = authentication instanceof JwtAuthenticationToken</b>
+<b class="nc">&nbsp;            ? extractAuthorityFromClaims(((JwtAuthenticationToken) authentication).getToken().getClaims())</b>
+<b class="nc">&nbsp;            : authentication.getAuthorities();</b>
+<b class="nc">&nbsp;        return authorities.stream().map(GrantedAuthority::getAuthority);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static List&lt;GrantedAuthority&gt; extractAuthorityFromClaims(Map&lt;String, Object&gt; claims) {
+<b class="nc">&nbsp;        return mapRolesToGrantedAuthorities(getRolesFromClaims(claims));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;    private static Collection&lt;String&gt; getRolesFromClaims(Map&lt;String, Object&gt; claims) {
+<b class="nc">&nbsp;        return (Collection&lt;String&gt;) claims.getOrDefault(</b>
+&nbsp;            &quot;groups&quot;,
+<b class="nc">&nbsp;            claims.getOrDefault(&quot;roles&quot;, claims.getOrDefault(CLAIMS_NAMESPACE + &quot;roles&quot;, new ArrayList&lt;&gt;()))</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private static List&lt;GrantedAuthority&gt; mapRolesToGrantedAuthorities(Collection&lt;String&gt; roles) {
+<b class="nc">&nbsp;        return roles.stream().filter(role -&gt; role.startsWith(&quot;ROLE_&quot;)).map(SimpleGrantedAuthority::new).collect(Collectors.toList());</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-18 11:50</div>
+</div>
+</body>
+</html>
